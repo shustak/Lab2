@@ -17,6 +17,8 @@
             <TextBox x:Name="textBoxEndX" Width="100" Margin="5"/>
             <Label Content="Step X:" VerticalAlignment="Center"/>
             <TextBox x:Name="textBoxStepX" Width="100" Margin="5"/>
+            <Label Content="N:" VerticalAlignment="Center"/>
+            <TextBox x:Name="textBoxN" Width="100" Margin="5"/>
         </StackPanel>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,10">

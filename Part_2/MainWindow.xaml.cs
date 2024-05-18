@@ -64,12 +64,14 @@ namespace Part_2
             {
                 using (StreamWriter writer = new StreamWriter("employees.txt"))
                 {
-                    foreach (var employee in employees)
+                    foreach (var item in listBoxEmployees.Items)
                     {
-                        writer.WriteLine(employee.ToString());
+                        writer.WriteLine(item.ToString());
                     }
                 }
                 MessageBox.Show("Данные сохранены успешно.");
+                listBoxEmployees.Items.Clear();
+                employees.Clear();
             }
             catch (Exception ex)
             {
@@ -82,18 +84,45 @@ namespace Part_2
             try
             {
                 listBoxEmployees.Items.Clear();
+                employees.Clear();
                 using (StreamReader reader = new StreamReader("employees.txt"))
                 {
                     string line;
                     while ((line = reader.ReadLine()) != null)
                     {
                         listBoxEmployees.Items.Add(line);
+                        var data = line.Split(new[] { ", " }, StringSplitOptions.None);
+                        if (data.Length == 6)
+                        {
+                            var employee = new Employee(data[0], decimal.Parse(data[1]), data[2], data[3], data[4], data[5]);
+                            employees.Add(employee);
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка при загрузке данных: {ex.Message}");
+            }
+        }
+
+        private void SaveInputToListBox_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var lastName = textBoxLastName.Text;
+                var salary = textBoxSalary.Text;
+                var position = comboBoxPosition.Text;
+                var city = comboBoxCity.Text;
+                var street = comboBoxStreet.Text;
+                var house = textBoxHouse.Text;
+
+                var employeeData = $"{lastName}, {salary}, {position}, {city}, {street}, {house}";
+                listBoxEmployees.Items.Add(employeeData);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка: {ex.Message}");
             }
         }
     }

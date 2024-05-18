@@ -34,6 +34,7 @@
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,10,0,0">
             <Button Content="Загрузить" Click="LoadEmployees_Click" Margin="5"/>
             <Button Content="Сохранить" Click="SaveEmployees_Click" Margin="5"/>
+            <Button Content="Сохранить Ввод" Click="SaveInputToListBox_Click" Margin="5"/>
         </StackPanel>
     </Grid>
 </Window>
