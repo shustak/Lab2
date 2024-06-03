@@ -1,34 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Part_2
 {
     public partial class MainWindow : Window
     {
-        private List<Employee> employees = new List<Employee>();
+        public ObservableCollection<Employee> Employees { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
+            Employees = new ObservableCollection<Employee>();
+            DataContext = this;
             InitializeComboBoxes();
         }
 
         private void InitializeComboBoxes()
         {
-            // Заполнение ComboBox данными
             comboBoxPosition.Items.Add("Менеджер");
             comboBoxPosition.Items.Add("Разработчик");
             comboBoxCity.Items.Add("Брест");
@@ -39,23 +32,61 @@ namespace Part_2
 
         private void AddEmployee_Click(object sender, RoutedEventArgs e)
         {
-            try
+            if (ValidateInputs())
             {
-                var lastName = textBoxLastName.Text;
-                var salary = decimal.Parse(textBoxSalary.Text);
-                var position = comboBoxPosition.Text;
-                var city = comboBoxCity.Text;
-                var street = comboBoxStreet.Text;
-                var house = textBoxHouse.Text;
-
-                var newEmployee = new Employee(lastName, salary, position, city, street, house);
-                employees.Add(newEmployee);
+                var newEmployee = new Employee
+                {
+                    LastName = textBoxLastName.Text,
+                    Salary = decimal.Parse(textBoxSalary.Text),
+                    Position = comboBoxPosition.Text,
+                    City = comboBoxCity.Text,
+                    Street = comboBoxStreet.Text,
+                    House = textBoxHouse.Text
+                };
+                Employees.Add(newEmployee);
                 listBoxEmployees.Items.Add(newEmployee.ToString());
             }
-            catch (Exception ex)
+        }
+
+        private bool ValidateInputs()
+        {
+            if (string.IsNullOrWhiteSpace(textBoxLastName.Text))
             {
-                MessageBox.Show($"Ошибка: {ex.Message}");
+                MessageBox.Show("Фамилия не может быть пустой.", "Ошибка ввода", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
             }
+
+            if (!decimal.TryParse(textBoxSalary.Text, out decimal salary) || salary <= 0)
+            {
+                MessageBox.Show("Зарплата должна быть положительным числовым значением.", "Ошибка ввода", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(comboBoxPosition.Text))
+            {
+                MessageBox.Show("Должность не может быть пустой.", "Ошибка ввода", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(comboBoxCity.Text))
+            {
+                MessageBox.Show("Город не может быть пустым.", "Ошибка ввода", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(comboBoxStreet.Text))
+            {
+                MessageBox.Show("Улица не может быть пустой.", "Ошибка ввода", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(textBoxHouse.Text))
+            {
+                MessageBox.Show("Дом не может быть пустым.", "Ошибка ввода", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            return true;
         }
 
         private void SaveEmployees_Click(object sender, RoutedEventArgs e)
@@ -64,14 +95,12 @@ namespace Part_2
             {
                 using (StreamWriter writer = new StreamWriter("employees.txt"))
                 {
-                    foreach (var item in listBoxEmployees.Items)
+                    foreach (var employee in Employees)
                     {
-                        writer.WriteLine(item.ToString());
+                        writer.WriteLine(employee.ToString());
                     }
                 }
                 MessageBox.Show("Данные сохранены успешно.");
-                listBoxEmployees.Items.Clear();
-                employees.Clear();
             }
             catch (Exception ex)
             {
@@ -83,19 +112,27 @@ namespace Part_2
         {
             try
             {
+                Employees.Clear();
                 listBoxEmployees.Items.Clear();
-                employees.Clear();
                 using (StreamReader reader = new StreamReader("employees.txt"))
                 {
                     string line;
                     while ((line = reader.ReadLine()) != null)
                     {
-                        listBoxEmployees.Items.Add(line);
                         var data = line.Split(new[] { ", " }, StringSplitOptions.None);
                         if (data.Length == 6)
                         {
-                            var employee = new Employee(data[0], decimal.Parse(data[1]), data[2], data[3], data[4], data[5]);
-                            employees.Add(employee);
+                            var employee = new Employee
+                            {
+                                LastName = data[0],
+                                Salary = decimal.Parse(data[1]),
+                                Position = data[2],
+                                City = data[3],
+                                Street = data[4],
+                                House = data[5]
+                            };
+                            Employees.Add(employee);
+                            listBoxEmployees.Items.Add(employee.ToString());
                         }
                     }
                 }
@@ -105,45 +142,82 @@ namespace Part_2
                 MessageBox.Show($"Ошибка при загрузке данных: {ex.Message}");
             }
         }
-
-        private void SaveInputToListBox_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                var lastName = textBoxLastName.Text;
-                var salary = textBoxSalary.Text;
-                var position = comboBoxPosition.Text;
-                var city = comboBoxCity.Text;
-                var street = comboBoxStreet.Text;
-                var house = textBoxHouse.Text;
-
-                var employeeData = $"{lastName}, {salary}, {position}, {city}, {street}, {house}";
-                listBoxEmployees.Items.Add(employeeData);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка: {ex.Message}");
-            }
-        }
     }
 
-    public class Employee
+    public class Employee : INotifyPropertyChanged
     {
-        public string LastName { get; set; }
-        public decimal Salary { get; set; }
-        public string Position { get; set; }
-        public string City { get; set; }
-        public string Street { get; set; }
-        public string House { get; set; }
+        private string lastName;
+        private decimal salary;
+        private string position;
+        private string city;
+        private string street;
+        private string house;
 
-        public Employee(string lastName, decimal salary, string position, string city, string street, string house)
+        public string LastName
         {
-            LastName = lastName;
-            Salary = salary;
-            Position = position;
-            City = city;
-            Street = street;
-            House = house;
+            get => lastName;
+            set
+            {
+                lastName = value;
+                OnPropertyChanged(nameof(LastName));
+            }
+        }
+
+        public decimal Salary
+        {
+            get => salary;
+            set
+            {
+                salary = value;
+                OnPropertyChanged(nameof(Salary));
+            }
+        }
+
+        public string Position
+        {
+            get => position;
+            set
+            {
+                position = value;
+                OnPropertyChanged(nameof(Position));
+            }
+        }
+
+        public string City
+        {
+            get => city;
+            set
+            {
+                city = value;
+                OnPropertyChanged(nameof(City));
+            }
+        }
+
+        public string Street
+        {
+            get => street;
+            set
+            {
+                street = value;
+                OnPropertyChanged(nameof(Street));
+            }
+        }
+
+        public string House
+        {
+            get => house;
+            set
+            {
+                house = value;
+                OnPropertyChanged(nameof(House));
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public override string ToString()

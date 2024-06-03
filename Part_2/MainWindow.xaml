@@ -1,7 +1,26 @@
 ﻿<Window x:Class="Part_2.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Employee Data Management" Height="600" Width="800">
+        Title="Employee Data Management" Height="600" Width="1000">
+    <Window.Resources>
+        <Style TargetType="{x:Type TextBox}">
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="true">
+                    <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}" />
+                    <Setter Property="Background" Value="Pink"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <ControlTemplate x:Key="ErrorTemplate">
+            <StackPanel Orientation="Horizontal">
+                <Border BorderThickness="2" BorderBrush="Red">
+                    <AdornedElementPlaceholder/>
+                </Border>
+                <TextBlock Foreground="Red" FontSize="24">*</TextBlock>
+            </StackPanel>
+        </ControlTemplate>
+    </Window.Resources>
+
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -10,31 +29,30 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Раздел для ввода данных о работниках -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,10">
             <Label Content="Фамилия:" VerticalAlignment="Center"/>
-            <TextBox x:Name="textBoxLastName" Width="120" Margin="5"/>
+            <TextBox x:Name="textBoxLastName" Width="120" Margin="5" Text="{Binding LastName, ValidatesOnExceptions=True, UpdateSourceTrigger=PropertyChanged}" Validation.ErrorTemplate="{StaticResource ErrorTemplate}"/>
             <Label Content="Зарплата:" VerticalAlignment="Center"/>
-            <TextBox x:Name="textBoxSalary" Width="120" Margin="5"/>
+            <TextBox x:Name="textBoxSalary" Width="120" Margin="5" Text="{Binding Salary, ValidatesOnExceptions=True, UpdateSourceTrigger=PropertyChanged}" Validation.ErrorTemplate="{StaticResource ErrorTemplate}"/>
             <Label Content="Должность:" VerticalAlignment="Center"/>
-            <ComboBox x:Name="comboBoxPosition" Width="120" Margin="5" IsEditable="True"/>
+            <ComboBox x:Name="comboBoxPosition" Width="120" Margin="5" IsEditable="True" Text="{Binding Position}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,10">
             <Label Content="Город:" VerticalAlignment="Center"/>
-            <ComboBox x:Name="comboBoxCity" Width="120" Margin="5" IsEditable="True"/>
+            <ComboBox x:Name="comboBoxCity" Width="120" Margin="5" IsEditable="True" Text="{Binding City}"/>
             <Label Content="Улица:" VerticalAlignment="Center"/>
-            <ComboBox x:Name="comboBoxStreet" Width="120" Margin="5" IsEditable="True"/>
+            <ComboBox x:Name="comboBoxStreet" Width="120" Margin="5" IsEditable="True" Text="{Binding Street}"/>
             <Label Content="Дом:" VerticalAlignment="Center"/>
-            <TextBox x:Name="textBoxHouse" Width="50" Margin="5"/>
+            <TextBox x:Name="textBoxHouse" Width="50" Margin="5" Text="{Binding House, ValidatesOnExceptions=True, UpdateSourceTrigger=PropertyChanged}" Validation.ErrorTemplate="{StaticResource ErrorTemplate}"/>
             <Button Content="Добавить" Click="AddEmployee_Click" Margin="10,0"/>
         </StackPanel>
 
-        <!-- ListBox для отображения списка работников -->
         <ListBox x:Name="listBoxEmployees" Grid.Row="2" Margin="0,5"/>
 
-        <!-- Кнопки для работы с файлом -->
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,10,0,0">
             <Button Content="Загрузить" Click="LoadEmployees_Click" Margin="5"/>
             <Button Content="Сохранить" Click="SaveEmployees_Click" Margin="5"/>
-            <Button Content="Сохранить Ввод" Click="SaveInputToListBox_Click" Margin="5"/>
         </StackPanel>
     </Grid>
 </Window>

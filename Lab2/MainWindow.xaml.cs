@@ -1,31 +1,79 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Lab2
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        private double startX;
+        private double endX;
+        private double stepX;
+        private int n;
+        private int selectedFunction;
+        private string result;
+        private ObservableCollection<string> results;
+
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = this;
+            Results = new ObservableCollection<string>();
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public double StartX
+        {
+            get => startX;
+            set { startX = value; OnPropertyChanged(); }
+        }
+
+        public double EndX
+        {
+            get => endX;
+            set { endX = value; OnPropertyChanged(); }
+        }
+
+        public double StepX
+        {
+            get => stepX;
+            set { stepX = value; OnPropertyChanged(); }
+        }
+
+        public int N
+        {
+            get => n;
+            set { n = value; OnPropertyChanged(); }
+        }
+
+        public int SelectedFunction
+        {
+            get => selectedFunction;
+            set { selectedFunction = value; OnPropertyChanged(); }
+        }
+
+        public string Result
+        {
+            get => result;
+            set { result = value; OnPropertyChanged(); }
+        }
+
+        public ObservableCollection<string> Results
+        {
+            get => results;
+            set { results = value; OnPropertyChanged(); }
         }
 
         private void CalculateButton_Click(object sender, RoutedEventArgs e)
         {
             ResetTextBoxStyles();
-            listBoxResults.Items.Clear();
+            Results.Clear();
+            Result = string.Empty;
             bool inputIsValid = true;
 
             if (!double.TryParse(textBoxStartX.Text, out double startX))
@@ -48,28 +96,29 @@ namespace Lab2
                 inputIsValid = false;
                 SetTextBoxErrorStyle(textBoxN, "Invalid input: Please enter a valid number for N.");
             }
-            if (N < 4)
+            if (N < 5)
             {
                 inputIsValid = false;
-                SetTextBoxErrorStyle(textBoxN, "Invalid input: N must be greater than 3.");
+                SetTextBoxErrorStyle(textBoxN, "Invalid input: N must be greater than 4.");
             }
             if (!inputIsValid)
             {
                 return;
             }
 
-            string selectedFunction = (comboBoxFunction.SelectedItem as ComboBoxItem)?.Content.ToString();
-            for (double x = startX; x <= endX; x += stepX)
+            for (double x = StartX; x <= EndX; x += StepX)
             {
-                if (selectedFunction == "S(x) = Σ(x^k/k!)" || comboBoxFunction.SelectedIndex == 0)  // Проверяем, какая функция выбрана
+                if (SelectedFunction == 0)
                 {
                     double sX = CalculateSX(x, N);
-                    listBoxResults.Items.Add($"S({x}) = {sX}");
+                    Results.Add($"S({x}) = {sX}");
+                    Result = $"S({x}) = {sX}";
                 }
-                else if (selectedFunction == "Y(x) = e^x cos(4 cos(x sin(x)))" || comboBoxFunction.SelectedIndex == 1)
+                else if (SelectedFunction == 1)
                 {
                     double yX = CalculateYX(x);
-                    listBoxResults.Items.Add($"Y({x}) = {yX}");
+                    Results.Add($"Y({x}) = {yX}");
+                    Result = $"Y({x}) = {yX}";
                 }
             }
         }
@@ -109,25 +158,30 @@ namespace Lab2
 
         private void ResetTextBox(TextBox textBox)
         {
-            textBox.Background = Brushes.White; // Возвращаем стандартный белый фон
+            textBox.Background = Brushes.White;
             if (textBox.ToolTip is ToolTip toolTip)
             {
-                toolTip.IsOpen = false; // Закрываем подсказку
+                toolTip.IsOpen = false;
             }
-            textBox.ToolTip = null; // Удаляем подсказку
+            textBox.ToolTip = null;
         }
 
         private void SetTextBoxErrorStyle(TextBox textBox, string errorMessage)
         {
-            textBox.Background = Brushes.LightCoral; // Изменение цвета фона на красный
+            textBox.Background = Brushes.LightCoral;
             ToolTip toolTip = new ToolTip
             {
                 Content = errorMessage,
-                IsOpen = true, // Устанавливаем подсказку как открытую
-                PlacementTarget = textBox, // Указываем, что подсказка должна быть показана рядом с textBox
-                Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom // Размещение под textBox
+                IsOpen = true,
+                PlacementTarget = textBox,
+                Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom
             };
             textBox.ToolTip = toolTip;
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

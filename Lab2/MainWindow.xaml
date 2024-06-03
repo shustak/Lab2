@@ -12,25 +12,29 @@
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,10">
             <Label Content="Start X:" VerticalAlignment="Center"/>
-            <TextBox x:Name="textBoxStartX" Width="100" Margin="5"/>
+            <TextBox x:Name="textBoxStartX" Width="100" Margin="5" Text="{Binding StartX, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Content="End X:" VerticalAlignment="Center"/>
-            <TextBox x:Name="textBoxEndX" Width="100" Margin="5"/>
+            <TextBox x:Name="textBoxEndX" Width="100" Margin="5" Text="{Binding EndX, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Content="Step X:" VerticalAlignment="Center"/>
-            <TextBox x:Name="textBoxStepX" Width="100" Margin="5"/>
+            <TextBox x:Name="textBoxStepX" Width="100" Margin="5" Text="{Binding StepX, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Content="N:" VerticalAlignment="Center"/>
-            <TextBox x:Name="textBoxN" Width="100" Margin="5"/>
+            <TextBox x:Name="textBoxN" Width="100" Margin="5" Text="{Binding N, UpdateSourceTrigger=PropertyChanged}"/>
         </StackPanel>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,10">
             <Label Content="Select Function:" VerticalAlignment="Center"/>
-            <ComboBox x:Name="comboBoxFunction" Width="150" Margin="5">
-                <ComboBoxItem Content="S(x) = Σ(x^k/k!)" IsSelected="True"/>
+            <ComboBox x:Name="comboBoxFunction" Width="150" Margin="5" SelectedIndex="{Binding SelectedFunction}">
+                <ComboBoxItem Content="S(x) = Σ(x^k/k!)" />
                 <ComboBoxItem Content="Y(x) = e^x cos(4 cos(x sin(x)))"/>
             </ComboBox>
             <Button Content="Calculate" Click="CalculateButton_Click" Margin="10,0"/>
         </StackPanel>
 
-        <ListBox x:Name="listBoxResults" Grid.Row="3" Margin="0,5"/>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,10">
+            <Label Content="Result: " VerticalAlignment="Center"/>
+            <TextBlock x:Name="textBlockResult" Width="400" Margin="5" Text="{Binding Result}"/>
+        </StackPanel>
+
+        <ListBox x:Name="listBoxResults" Grid.Row="3" Margin="0,5" ItemsSource="{Binding Results}"/>
     </Grid>
 </Window>
-
